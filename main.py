@@ -3,32 +3,24 @@
 
 import sqlite3
 from tabulate import tabulate
+import student_data
 
 
 def main():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect('student_database.db')
     cur = conn.cursor()
 
     # Create table
     cur.execute(
-        '''CREATE TABLE Database (student_id INTEGER PRIMARY KEY NOT NULL, student_name_last TEXT, 
+        '''CREATE TABLE IF NOT EXISTS Students (student_id INTEGER PRIMARY KEY NOT NULL, student_name_last TEXT, 
         student_name_first TEXT, student_year INTEGER, course_name TEXT, course_ID INTEGER, professor_name TEXT)'''
     )
 
     # Enter data
-    cur.execute('INSERT INTO Database VALUES (2048, "Smith", "Ethan", 11, "Python", "2005", "McAnally")')
-    cur.execute('INSERT INTO Database VALUES (1105, "Laven", "Mathias", 11, "Python", "2005", "McAnally")')
-    cur.execute('INSERT INTO Database VALUES (1818, "Brozynski", "Kathleen", 11, "Python", "2005", "McAnally")')
-    cur.execute('INSERT INTO Database VALUES (1684, "Burgoss", "Rob", 10, "English", "1182", "Johnson")')
-    cur.execute('INSERT INTO Database VALUES (2598, "Jacobson", "Paul", 12, "Calculus", "2036", "Schmidt")')
-    cur.execute('INSERT INTO Database VALUES (9046, "Smith", "Terry", 11, "Chemistry", "1520", "Nylund")')
-    cur.execute('INSERT INTO Database VALUES (7245, "Jackson", "Mary", 12, "French", "1905", "Ramsey")')
-    cur.execute('INSERT INTO Database VALUES (9241, "Olson", "Amanda", 11, "Economics", "3060", "Swanson")')
-    cur.execute('INSERT INTO Database VALUES (4470, "Miller", "Nathanial", 11, "French", "4009", "Jackson")')
-    cur.execute('INSERT INTO Database VALUES (9801, "Blake", "Johnathan", 12, "Calculus", "1000", "Roosevelt")')
+    cur.executemany('INSERT OR IGNORE INTO Students VALUES (?, ?, ?, ?, ?, ?, ?)', student_data.data)
 
     # Select the data and extract results
-    cur.execute('SELECT * FROM Database')
+    cur.execute('SELECT * FROM Students')
     headers = [desc[0] for desc in cur.description]  # headers are the column headers
     data = cur.fetchall()  # data is the data in the table, excluding headers
 
