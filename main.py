@@ -1,5 +1,5 @@
-# Week 13: First program (Major Project Part 1)
-# Code by team of Mathias Laven, Ethan Smith, Kathleen Brozynski (04/30/2024)
+# Week 14: Second program (Major Project Part 2)
+# Code by team of Mathias Laven, Ethan Smith, Kathleen Brozynski (05/06/2024)
 
 import sqlite3
 from tabulate import tabulate
