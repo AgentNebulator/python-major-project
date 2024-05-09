@@ -67,7 +67,7 @@ class StudentDatabaseGUI:
             self.__data_table.insert(parent='', index='end', values=student)
 
         self.__displayed_data = tkinter.StringVar()
-        self.__displayed_data.set("Request with Student ID to view data")
+        self.__displayed_data.set("Request with Student ID to view specific data")
 
         self.__data_label = tkinter.Label(self.__label_frame,
                                           textvariable=self.__displayed_data,
@@ -96,8 +96,8 @@ class StudentDatabaseGUI:
         self.__fetch_button.pack(side="left", padx="10")
         self.__exit_button.pack(side='left')
 
-        self.__treeview_frame.pack(padx=(40, 40), pady=(40, 10))
-        self.__label_frame.pack(padx=(40, 40), pady=(40, 10))
+        self.__treeview_frame.pack(padx=(10, 10), pady=(10, 10))
+        self.__label_frame.pack(padx=(40, 40), pady=(10, 10))
         self.__entry_frame.pack(padx=(40, 40), pady=(10, 10))
         self.__button_frame.pack(padx=(40, 40), pady=(10, 40))
 
@@ -106,25 +106,27 @@ class StudentDatabaseGUI:
     def __fetch_data(self):
 
         requested_id = self.__request_entry.get()
-
         requested_data = [item for item in self.__data[1]
-                          if (str(item[0]) == requested_id)][0]
+                          if (str(item[0]) == requested_id)]
 
-        formatted_data = {
-            "id": requested_data[0],
-            "last_name": requested_data[1],
-            "first_name": requested_data[2],
-            "grade_level": requested_data[3],
-            "class_name": requested_data[4],
-            "class_id": requested_data[5],
-            "class_teacher": requested_data[6]
-        }
+        if requested_data:
+            data_dict = {
+                "id": requested_data[0][0],
+                "last_name": requested_data[0][1],
+                "first_name": requested_data[0][2],
+                "grade_level": requested_data[0][3],
+                "class_name": requested_data[0][4],
+                "class_id": requested_data[0][5],
+                "class_teacher": requested_data[0][6]
+            }
 
-        self.__displayed_data.set((
-            f"Full Name: {formatted_data["first_name"]} {formatted_data["last_name"]} \n"
-            f"Grade level: {formatted_data["grade_level"]} \n"
-            f"Class: {formatted_data["class_teacher"]}'s {formatted_data["class_name"]} {formatted_data["class_id"]}"
-        ))
+            self.__displayed_data.set((
+                f"Full Name: {data_dict["first_name"]} {data_dict["last_name"]} \n"
+                f"Grade level: {data_dict["grade_level"]} \n"
+                f"Class: {data_dict["class_teacher"]}'s {data_dict["class_name"]} {data_dict["class_id"]}"
+            ))
+        else:
+            self.__displayed_data.set("No student found with that ID")
 
     def __close_window(self):
         # was experimenting and left this in
