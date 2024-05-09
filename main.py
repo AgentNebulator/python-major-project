@@ -58,8 +58,8 @@ class StudentDatabaseGUI:
         self.__request_entry = tkinter.Entry(self.__mid_frame)
 
         self.__fetch_button = tkinter.Button(self.__bottom_frame,
-                                           text='Fetch',
-                                           command=self.__fetch_data)
+                                             text='Fetch',
+                                             command=self.__fetch_data)
 
         # Exit button for user-friendly exit
         self.__exit_button = tkinter.Button(self.__bottom_frame,
@@ -82,7 +82,17 @@ class StudentDatabaseGUI:
         tkinter.mainloop()
 
     def __fetch_data(self):
-        pass
+        requested_id = self.__request_entry.get()
+
+        print(self.__data)
+        headers = self.__data[0]
+        requested_data = [item for item in self.__data[1]
+                          if (str(item[0]) == requested_id)][0]
+
+        self.__displayed_data.set((
+            f"{requested_data[2]} {requested_data[1]}"
+            f""
+        ))
 
     def __close_window(self):
         # was experimenting and left this in
