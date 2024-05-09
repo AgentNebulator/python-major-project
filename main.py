@@ -44,36 +44,39 @@ class StudentDatabaseGUI:
         self.__data_table = display_select_results(results)
 
         # Initiate main window, frames, and labels
-        self.main_window = tkinter.Tk()
-        self.main_window.title("Database")
-        self.top_frame = tkinter.Frame(self.main_window)
-        self.mid_frame = tkinter.Frame(self.main_window)
-        self.bottom_frame = tkinter.Frame(self.main_window)
-        self.value = tkinter.StringVar()
+        self.__main_window = tkinter.Tk()
+        self.__main_window.title("Database")
+        self.__top_frame = tkinter.Frame(self.__main_window)
+        self.__mid_frame = tkinter.Frame(self.__main_window)
+        self.__bottom_frame = tkinter.Frame(self.__main_window)
+        self.__value = tkinter.StringVar()
 
         # Text is variable data_table to display table
-        self.data_label = tkinter.Label(self.top_frame,
+        self.__data_label = tkinter.Label(self.__top_frame,
                                         text=self.__data_table)
 
+        self.__request_entry = tkinter.Entry(self.__mid_frame)
+
         # Exit button for user-friendly exit
-        self.exit_button = tkinter.Button(self.mid_frame,
+        self.__exit_button = tkinter.Button(self.__bottom_frame,
                                           text='Exit',
                                           command=self.__close_window)
 
         # Pack data
-        self.data_label.pack()
-        self.exit_button.pack(side='left')
+        self.__data_label.pack()
+        self.__request_entry.pack()
+        self.__exit_button.pack(side='left')
 
-        self.top_frame.pack(padx=(40, 40), pady=(40, 10))
-        self.mid_frame.pack(padx=(40, 40), pady=(10, 10))
-        self.bottom_frame.pack(padx=(40, 40), pady=(10, 40))
+        self.__top_frame.pack(padx=(40, 40), pady=(40, 10))
+        self.__mid_frame.pack(padx=(40, 40), pady=(10, 10))
+        self.__bottom_frame.pack(padx=(40, 40), pady=(10, 40))
 
         tkinter.mainloop()
 
     def __close_window(self):
         # was experimenting and left this in
         # unnecessary right now, but could possibly be useful in the future
-        self.main_window.destroy()
+        self.__main_window.destroy()
 
 
 def display_select_results(results):
