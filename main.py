@@ -26,29 +26,28 @@ def main():
     # Enter data
     cur.executemany('INSERT OR IGNORE INTO Students VALUES (?, ?, ?, ?, ?, ?, ?)', student_data.data)
 
-    # Select the data and extract results
-    cur.execute('SELECT * FROM Students')
-    headers = [desc[0] for desc in cur.description]  # headers are the column headers
-    data = cur.fetchall()  # data is the data in the table, excluding headers
-
     # Close the connection
     conn.commit()
     conn.close()
-
-    # Put the results together as a tuple
-    results = (headers, data)
-
-    # Provide the results to the GUI
-    return results
 
 
 # Create Class for GUI
 class StudentDatabaseGUI:
     # Use variable data_table from main() to show table
-    def __init__(self, results):
+    def __init__(self):
+        conn = sqlite3.connect('student_database.db')
+        cur = conn.cursor()
 
-        # Store the results
-        self.__data = results
+        # Select the data and extract results
+        cur.execute('SELECT * FROM Students')
+        headers = [desc[0] for desc in cur.description]  # headers are the column headers
+        data = cur.fetchall()  # data is the data in the table, excluding headers
+
+        # Put the results together as a tuple and store
+        self.__data = (headers, data)
+
+        # Close connection
+        conn.close()
 
         # Initiate main window, frames, and labels
         self.__main_window = tkinter.Tk()
@@ -161,4 +160,5 @@ def display_select_results(results):
 
 if __name__ == '__main__':
     # Call both functions
-    student_gui = StudentDatabaseGUI(main())
+    main()
+    student_gui = StudentDatabaseGUI()
