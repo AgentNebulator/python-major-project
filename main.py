@@ -31,15 +31,18 @@ def main():
 
     # Put the results together as a tuple
     results = (headers, data)
-    data_table = display_select_results(results)
 
-    return data_table
+    return results
 
 
 # Create Class for GUI
-class StudentDatabase:
+class StudentDatabaseGUI:
     # Use variable data_table from main() to show table
-    def __init__(self, data_table):
+    def __init__(self, results):
+
+        self.__data = results
+        self.__data_table = display_select_results(results)
+
         # Initiate main window, frames, and labels
         self.main_window = tkinter.Tk()
         self.main_window.title("Database")
@@ -50,12 +53,12 @@ class StudentDatabase:
 
         # Text is variable data_table to display table
         self.data_label = tkinter.Label(self.top_frame,
-                                        text=data_table)
+                                        text=self.__data_table)
 
         # Exit button for user-friendly exit
         self.exit_button = tkinter.Button(self.mid_frame,
                                           text='Exit',
-                                          command=self.main_window.destroy)
+                                          command=self.__close_window)
 
         # Pack data
         self.data_label.pack()
@@ -64,16 +67,24 @@ class StudentDatabase:
         self.top_frame.pack(padx=(40, 40), pady=(40, 10))
         self.mid_frame.pack(padx=(40, 40), pady=(10, 10))
         self.bottom_frame.pack(padx=(40, 40), pady=(10, 40))
+
         tkinter.mainloop()
+
+    def __close_window(self):
+        # was experimenting and left this in
+        # unnecessary right now, but could possibly be useful in the future
+        self.main_window.destroy()
 
 
 def display_select_results(results):
-    print(tabulate(results[1], headers=results[0], tablefmt="rounded_outline", numalign="left"))
+    formatted_results = tabulate(results[1], headers=results[0], tablefmt="rounded_outline", numalign="left")
+    print(formatted_results)
 
-
-# Call both functions
-student_gui = StudentDatabase(main())
+    return formatted_results
 
 
 if __name__ == '__main__':
-    main()
+    # Call both functions
+    student_gui = StudentDatabaseGUI(main())
+
+
