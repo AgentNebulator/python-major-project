@@ -85,17 +85,16 @@ class StudentDatabaseGUI:
 
         # Create label and format with text
         self.__data_label = tkinter.Label(self.__label_frame,
-                                          textvariable=self.__displayed_data,
-                                          relief="ridge")
+                                          textvariable=self.__displayed_data,)
 
         # Create label and entry box for student ID
         self.__request_label = tkinter.Label(self.__entry_frame, text="Student ID: ")
         self.__request_entry = tkinter.Entry(self.__entry_frame)
 
-        # Create button to fetch data by ID
-        self.__fetch_button = tkinter.Button(self.__button_frame,
-                                             text='Fetch',
-                                             command=self.__fetch_data)
+        # Create button to delete data by ID
+        self.__delete_button = tkinter.Button(self.__button_frame,
+                                             text='Delete',
+                                             command=self.__delete_data)
 
         # Create exit button for user-friendly exit
         self.__exit_button = tkinter.Button(self.__button_frame,
@@ -110,7 +109,7 @@ class StudentDatabaseGUI:
         self.__request_label.pack(side="left")
         self.__request_entry.pack()
 
-        self.__fetch_button.pack(side="left", padx="10")
+        self.__delete_button.pack(side="left")
         self.__exit_button.pack(side='left')
 
         self.__treeview_frame.pack(padx=(10, 10), pady=(10, 10))
@@ -121,36 +120,46 @@ class StudentDatabaseGUI:
         # Main loop
         tkinter.mainloop()
 
-    def __fetch_data(self):
-
-        # Get an array containing only the data matching the provided ID
+    def __delete_data(self):
+        conn = sqlite3.connect('student_database.db')
+        cur = conn.cursor()
         requested_id = self.__request_entry.get()
-        requested_data = [item for item in self.__data[1]
-                          if (str(item[0]) == requested_id)]
+        cur.execute('''SELECT student_id From Students
+                     WHERE student_id == ?''', (requested_id,))
+        results = cur.fetchone()
+    
+        if results != None:
+            cur.execute('''DELETE FROM Students
+                                WHERE student_id == ?''',
+                                (requested_id,))
+            
+            conn.commit()
+            self.__displayed_data.set('The student was deleted.')
+            self.__update_treeview()
 
-        # If data found matching the ID:
-        if requested_data:
-            # Format into dictionary for readable text display
-            data_dict = {
-                "id": requested_data[0][0],
-                "last_name": requested_data[0][1],
-                "first_name": requested_data[0][2],
-                "grade_level": requested_data[0][3],
-                "class_name": requested_data[0][4],
-                "class_id": requested_data[0][5],
-                "class_teacher": requested_data[0][6]
-            }
-
-            # Set up text display
-            self.__displayed_data.set((
-                f"Full Name: {data_dict["first_name"]} {data_dict["last_name"]} \n"
-                f"Grade level: {data_dict["grade_level"]} \n"
-                f"Class: {data_dict["class_teacher"]}'s {data_dict["class_name"]} {data_dict["class_id"]}"
-            ))
         else:
             # If no student with provided ID, error
             self.__displayed_data.set(DISPLAYED_DATA_ERROR)
 
+        if conn != None:
+            conn.close()
+
+    def __update_treeview(self):
+            # Clear the existing data in the treeview
+            for item in self.__data_table.get_children():
+                self.__data_table.delete(item)
+
+            # Re-fetch and re-insert the data from the database
+            conn = sqlite3.connect('student_database.db')
+            cur = conn.cursor()
+            cur.execute('SELECT * FROM Students')
+            data = cur.fetchall()
+
+            for student in data:
+                self.__data_table.insert(parent='', index='end', values=student)
+
+            if conn != None:
+                conn.close()
 
 def display_select_results(results):
     # No longer called, but kept just in case
