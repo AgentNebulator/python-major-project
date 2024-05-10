@@ -1,7 +1,7 @@
 data = [
     (20480, "Smith", "Ethan", 11, "Python", "2005", "McAnally"),
     (11050, "Laven", "Mathias", 11, "Python", "2005", "McAnally"),
-    (18180, "Brozynski", "Kathleen", 11, "Python", "2005", "McAnally"),
+    (18180, "Brozynski", "Kathleen", 12, "Python", "2005", "McAnally"),
     (16884, "Burgoss", "Rob", 10, "English", "1182", "Johnson"),
     (23598, "Jacobson", "Paul", 12, "Calculus", "2036", "Schmidt"),
     (90446, "Smith", "Terry", 11, "Chemistry", "1520", "Nylund"),
