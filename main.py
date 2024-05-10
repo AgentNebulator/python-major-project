@@ -121,22 +121,28 @@ class StudentDatabaseGUI:
         tkinter.mainloop()
 
     def __delete_data(self):
+        #Connect to database
         conn = sqlite3.connect('student_database.db')
         cur = conn.cursor()
+        #Get the input from the entry box
         requested_id = self.__request_entry.get()
+        #Use that input to find the row in the database
         cur.execute('''SELECT student_id From Students
                      WHERE student_id == ?''', (requested_id,))
         results = cur.fetchone()
-    
+
+        #If it finds the data, delete it
         if results != None:
             cur.execute('''DELETE FROM Students
                                 WHERE student_id == ?''',
                                 (requested_id,))
             
             conn.commit()
+            #Changes displayed_data text
             self.__displayed_data.set('The student was deleted.')
+            #Call update_treeview to update GUI
             self.__update_treeview()
-
+        #If not, displays that there is no data that matchs
         else:
             # If no student with provided ID, error
             self.__displayed_data.set(DISPLAYED_DATA_ERROR)
