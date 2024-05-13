@@ -85,7 +85,7 @@ class StudentDatabaseGUI:
 
         # Create label and format with text
         self.__data_label = tkinter.Label(self.__label_frame,
-                                          textvariable=self.__displayed_data,)
+                                          textvariable=self.__displayed_data, )
 
         # Create label and entry box for student ID
         self.__request_label = tkinter.Label(self.__entry_frame, text="Student ID: ")
@@ -93,8 +93,8 @@ class StudentDatabaseGUI:
 
         # Create button to delete data by ID
         self.__delete_button = tkinter.Button(self.__button_frame,
-                                             text='Delete',
-                                             command=self.__delete_data)
+                                              text='Delete',
+                                              command=self.__delete_data)
 
         # Create exit button for user-friendly exit
         self.__exit_button = tkinter.Button(self.__button_frame,
@@ -121,51 +121,50 @@ class StudentDatabaseGUI:
         tkinter.mainloop()
 
     def __delete_data(self):
-        #Connect to database
+        # Connect to database
         conn = sqlite3.connect('student_database.db')
         cur = conn.cursor()
-        #Get the input from the entry box
+        # Get the input from the entry box
         requested_id = self.__request_entry.get()
-        #Use that input to find the row in the database
+        # Use that input to find the row in the database
         cur.execute('''SELECT student_id From Students
                      WHERE student_id == ?''', (requested_id,))
         results = cur.fetchone()
 
-        #If it finds the data, delete it
-        if results != None:
+        # If it finds the data, delete it
+        if results:
             cur.execute('''DELETE FROM Students
                                 WHERE student_id == ?''',
-                                (requested_id,))
-            
+                        (requested_id,))
+
             conn.commit()
-            #Changes displayed_data text
+            # Changes displayed_data text
             self.__displayed_data.set('The student was deleted.')
-            #Call update_treeview to update GUI
+            # Call update_treeview to update GUI
             self.__update_treeview()
-        #If not, displays that there is no data that matchs
+        # If not, displays that there is no data that matches
         else:
             # If no student with provided ID, error
             self.__displayed_data.set(DISPLAYED_DATA_ERROR)
 
-        if conn != None:
-            conn.close()
+        conn.close()
 
     def __update_treeview(self):
-            # Clear the existing data in the treeview
-            for item in self.__data_table.get_children():
-                self.__data_table.delete(item)
+        # Clear the existing data in the treeview
+        for item in self.__data_table.get_children():
+            self.__data_table.delete(item)
 
-            # Re-fetch and re-insert the data from the database
-            conn = sqlite3.connect('student_database.db')
-            cur = conn.cursor()
-            cur.execute('SELECT * FROM Students')
-            data = cur.fetchall()
+        # Re-fetch and re-insert the data from the database
+        conn = sqlite3.connect('student_database.db')
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM Students')
+        data = cur.fetchall()
 
-            for student in data:
-                self.__data_table.insert(parent='', index='end', values=student)
+        for student in data:
+            self.__data_table.insert(parent='', index='end', values=student)
 
-            if conn != None:
-                conn.close()
+        conn.close()
+
 
 def display_select_results(results):
     # No longer called, but kept just in case
