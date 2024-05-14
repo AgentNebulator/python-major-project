@@ -1,3 +1,6 @@
+# Week 15: Final Project
+# Code by team of Mathias Laven, Ethan Smith, Kathleen Brozynski (05/15/2024)
+
 import sqlite3
 from tabulate import tabulate
 import student_data
@@ -83,7 +86,7 @@ class StudentDatabaseGUI:
 
         # Create label and format with text
         self.__data_label = tkinter.Label(self.__label_frame,
-                                          textvariable=self.__displayed_data,)
+                                          textvariable=self.__displayed_data, )
 
         # Create label and entry box for student ID
         self.__student_ID_label = tkinter.Label(self.__entry_frame, text="Student ID: ")
@@ -109,8 +112,8 @@ class StudentDatabaseGUI:
 
         # Create button to delete data by ID
         self.__delete_button = tkinter.Button(self.__button_frame,
-                                             text='Delete',
-                                             command=self.__delete_data)
+                                              text='Delete',
+                                              command=self.__delete_data)
         # Create button to add data
         self.__add_button = tkinter.Button(self.__button_frame,
                                              text='Add Data',
@@ -160,9 +163,14 @@ class StudentDatabaseGUI:
         tkinter.mainloop()
 
     def __delete_data(self):
+        # Connect to database
         conn = sqlite3.connect('student_database.db')
+        # Get the input from the entry box
         cur = conn.cursor()
+        # Use that input to find the row in the database
         requested_id = self.__student_ID_entry.get()
+
+        # If it finds the data, delete it
         cur.execute('''SELECT student_id From Students
                      WHERE student_id == ?''', (requested_id,))
         results = cur.fetchone()
@@ -174,9 +182,10 @@ class StudentDatabaseGUI:
             
             conn.commit()
             self.__displayed_data.set('The student was deleted.')
-            # Update GUI table
+            # Call update_treeview to update GUI
             self.__update_treeview()
-
+            
+        # If not, display "No student found with that ID"
         else:
             # If no student with provided ID, error
             self.__displayed_data.set(DISPLAYED_DATA_ERROR)
