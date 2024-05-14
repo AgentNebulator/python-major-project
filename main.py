@@ -40,7 +40,8 @@ class StudentDatabaseGUI:
 
         # Select the data and extract results
         cur.execute('SELECT * FROM Students')
-        headers = [desc[0] for desc in cur.description]  # headers are the column headers
+        # headers = [desc[0] for desc in cur.description]  # headers are the column headers
+        headers = ["Student ID", "Last Name", "First Name", "School Year", "Course Name", "Course ID", "Professor Name"]
         data = cur.fetchall()  # data is the data in the table, excluding headers
 
         # Put the results together as a tuple and store
