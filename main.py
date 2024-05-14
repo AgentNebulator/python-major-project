@@ -213,7 +213,14 @@ class StudentDatabaseGUI:
 
         # If table field does not match correct int type
         except sqlite3.IntegrityError:
-            self.__displayed_data.set('Error: Check int and str values')
+            cur.execute('''SELECT student_id From Students
+                         WHERE student_id == ?''', (requested_sID,))
+            results = cur.fetchone()
+
+            if results:
+                self.__displayed_data.set('Error: Student already exists with that ID')
+            else:
+                self.__displayed_data.set('Error: Check int and str values')
 
         conn.close()
 
@@ -267,6 +274,7 @@ class StudentDatabaseGUI:
         except sqlite3.IntegrityError:
             self.__displayed_data.set('Error: Check int and str values')
 
+        conn.close()
 
     def __delete_data(self):
         # Connect to database
