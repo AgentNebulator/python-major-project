@@ -2,7 +2,6 @@
 # Code by team of Mathias Laven, Ethan Smith, Kathleen Brozynski (05/15/2024)
 
 import sqlite3
-from tabulate import tabulate
 import student_data
 import tkinter
 import tkinter.ttk
@@ -120,6 +119,11 @@ class StudentDatabaseGUI:
                                            text='Add Data',
                                            command=self.__add_data)
 
+        # Create button to edit data by ID
+        self.__edit_button = tkinter.Button(self.__button_frame,
+                                           text='Edit Data',
+                                           command=self.__edit_data)
+
         # Create button to delete data by ID
         self.__delete_button = tkinter.Button(self.__button_frame,
                                               text='Delete Data',
@@ -157,6 +161,7 @@ class StudentDatabaseGUI:
         self.__professor_entry.grid(column=5, row=1)
 
         self.__add_button.pack(side="left", padx=5)
+        self.__edit_button.pack(side="left", padx=5)
         self.__delete_button.pack(side="left", padx=5)
         self.__exit_button.pack(side='left', padx=5)
 
@@ -175,6 +180,93 @@ class StudentDatabaseGUI:
 
         # Main loop
         tkinter.mainloop()
+
+    def __add_data(self):
+        # Connect to database
+        conn = sqlite3.connect('student_database.db')
+        cur = conn.cursor()
+
+        # Get users input in the GUI
+        requested_sID = self.__student_ID_entry.get()
+        requested_last = self.__last_entry.get()
+        requested_first = self.__first_entry.get()
+        requested_year = self.__year_entry.get()
+        requested_cname = self.__course_name_entry.get()
+        requested_cID = self.__course_ID_entry.get()
+        requested_professor = self.__professor_entry.get()
+
+        requested_values = (requested_sID, requested_last, requested_first, requested_year, requested_cname,
+                            requested_cID, requested_professor)
+
+        try:
+            # Add row with those values
+            cur.execute('''INSERT INTO Students (student_id, last_name, first_name, school_year, course_name, course_ID, professor_name)
+                        VALUES (?,?,?,?,?,?,?) ''', requested_values)
+
+            conn.commit()
+
+            self.__displayed_data.set('The student was added.')
+
+            # Update GUI table
+            self.__update_treeview()
+            self.__clear_box()
+
+        # If table field does not match correct int type
+        except sqlite3.IntegrityError:
+            self.__displayed_data.set('Error: Check int and str values')
+
+        conn.close()
+
+    def __edit_data(self):
+        # Connect to database
+        conn = sqlite3.connect('student_database.db')
+        cur = conn.cursor()
+
+        # Get users input in the GUI
+        requested_sID = self.__student_ID_entry.get()
+        requested_last = self.__last_entry.get()
+        requested_first = self.__first_entry.get()
+        requested_year = self.__year_entry.get()
+        requested_cname = self.__course_name_entry.get()
+        requested_cID = self.__course_ID_entry.get()
+        requested_professor = self.__professor_entry.get()
+
+        requested_values = (requested_sID, requested_last, requested_first, requested_year, requested_cname,
+                            requested_cID, requested_professor)
+
+        cur.execute('''SELECT * From Students
+                     WHERE student_id == ?''', (requested_sID,))
+        results = cur.fetchone()
+
+        try:
+            if results:
+                new_database_data = list(results)
+
+                for i in range(len(requested_values)):
+                    if requested_values[i]:
+                        new_database_data[i] = requested_values[i]
+
+                # Move ID to last position
+                new_database_data = new_database_data[1:] + [new_database_data[0]]
+
+                cur.execute('''UPDATE Students SET 
+                                        last_name = ?,
+                                        first_name = ?,
+                                        school_year = ?,
+                                        course_name = ?,
+                                        course_id = ?,
+                                        professor_name = ?
+                                    WHERE student_id == ?''', new_database_data)
+                conn.commit()
+                self.__displayed_data.set('The student was edited.')
+                # Call update_treeview to update GUI
+                self.__update_treeview()
+            else:
+                self.__displayed_data.set('Error: Check int and str values')
+        # If table field does not match correct int type
+        except sqlite3.IntegrityError:
+            self.__displayed_data.set('Error: Check int and str values')
+
 
     def __delete_data(self):
         # Connect to database
@@ -206,44 +298,6 @@ class StudentDatabaseGUI:
                 self.__displayed_data.set(DISPLAYED_DATA_ERROR)
 
             self.__clear_box()
-        # If table field does not match correct int type
-        except sqlite3.IntegrityError:
-            self.__displayed_data.set('Error: Check int and str values')
-
-        conn.close()
-
-    def __add_data(self):
-
-
-
-        # Connect to database
-        conn = sqlite3.connect('student_database.db')
-        cur = conn.cursor()
-
-        # Get users input in the GUI
-        requested_sid = self.__student_ID_entry.get()
-        requested_last = self.__last_entry.get()
-        requested_first = self.__first_entry.get()
-        requested_year = self.__year_entry.get()
-        requested_cname = self.__course_name_entry.get()
-        requested_cID = self.__course_ID_entry.get()
-        requested_professor = self.__professor_entry.get()
-
-        try:
-            # Add row with those values
-            cur.execute('''INSERT INTO Students (student_id, last_name, first_name, school_year, course_name, course_ID, professor_name)
-                        VALUES (?,?,?,?,?,?,?) ''',
-                        (requested_sid, requested_last, requested_first, requested_year, requested_cname, requested_cID,
-                         requested_professor))
-
-            conn.commit()
-
-            self.__displayed_data.set('The student was added.')
-
-            # Update GUI table
-            self.__update_treeview()
-            self.__clear_box()
-
         # If table field does not match correct int type
         except sqlite3.IntegrityError:
             self.__displayed_data.set('Error: Check int and str values')
