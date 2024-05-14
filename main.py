@@ -8,7 +8,7 @@ import tkinter
 import tkinter.ttk
 from tkinter import END
 
-DISPLAYED_DATA_DEFAULT = "Use Student ID to request specific data"
+DISPLAYED_DATA_DEFAULT = "Use Student ID to edit or delete data"
 DISPLAYED_DATA_ERROR = "No student found with that ID"
 
 TABLE_COLUMN_WIDTH = 100
@@ -56,8 +56,13 @@ class StudentDatabaseGUI:
 
         # Create frames
         self.__treeview_frame = tkinter.Frame(self.__main_window)
+        self.__treeview_separator = tkinter.ttk.Separator(self.__main_window, orient="horizontal")
         self.__label_frame = tkinter.Frame(self.__main_window)
-        self.__entry_frame = tkinter.Frame(self.__main_window)
+        self.__id_entry_frame = tkinter.Frame(self.__main_window)
+        self.__id_entry_separator = tkinter.ttk.Separator(self.__main_window, orient="horizontal")
+        self.__student_entry_frame = tkinter.Frame(self.__main_window)
+        self.__course_entry_frame = tkinter.Frame(self.__main_window)
+        self.__data_entry_separator = tkinter.ttk.Separator(self.__main_window, orient="horizontal")
         self.__button_frame = tkinter.Frame(self.__main_window)
 
         # Create data table (well, treeview)
@@ -89,35 +94,36 @@ class StudentDatabaseGUI:
                                           textvariable=self.__displayed_data, )
 
         # Create label and entry box for student ID
-        self.__student_ID_label = tkinter.Label(self.__entry_frame, text="Student ID: ")
-        self.__student_ID_entry = tkinter.Entry(self.__entry_frame)
+        self.__student_ID_label = tkinter.Label(self.__id_entry_frame, text="Student ID: ")
+        self.__student_ID_entry = tkinter.Entry(self.__id_entry_frame)
 
-        self.__last_label = tkinter.Label(self.__entry_frame, text="Last Name: ")
-        self.__last_entry = tkinter.Entry(self.__entry_frame)
+        self.__last_label = tkinter.Label(self.__student_entry_frame, text="Last Name: ", width=12, anchor="e")
+        self.__last_entry = tkinter.Entry(self.__student_entry_frame)
 
-        self.__first_label = tkinter.Label(self.__entry_frame, text="First Name: ")
-        self.__first_entry = tkinter.Entry(self.__entry_frame)
+        self.__first_label = tkinter.Label(self.__student_entry_frame, text="First Name: ", width=10, anchor="e")
+        self.__first_entry = tkinter.Entry(self.__student_entry_frame)
 
-        self.__year_label = tkinter.Label(self.__entry_frame, text="School Year: ")
-        self.__year_entry = tkinter.Entry(self.__entry_frame, width=10)
+        self.__year_label = tkinter.Label(self.__student_entry_frame, text="School Year: ", width=13, anchor="e")
+        self.__year_entry = tkinter.Entry(self.__student_entry_frame)
 
-        self.__course_name_label = tkinter.Label(self.__entry_frame, text="Course Name: ")
-        self.__course_name_entry = tkinter.Entry(self.__entry_frame)
+        self.__course_name_label = tkinter.Label(self.__course_entry_frame, text="Course Name: ", width=12, anchor="e")
+        self.__course_name_entry = tkinter.Entry(self.__course_entry_frame)
 
-        self.__course_ID_label = tkinter.Label(self.__entry_frame, text="Course ID: ")
-        self.__course_ID_entry = tkinter.Entry(self.__entry_frame)
+        self.__course_ID_label = tkinter.Label(self.__course_entry_frame, text="Course ID: ", width=10, anchor="e")
+        self.__course_ID_entry = tkinter.Entry(self.__course_entry_frame)
 
-        self.__professor_label = tkinter.Label(self.__entry_frame, text="Professor Name: ")
-        self.__professor_entry = tkinter.Entry(self.__entry_frame)
+        self.__professor_label = tkinter.Label(self.__course_entry_frame, text="Professor Name: ", width=13, anchor="e")
+        self.__professor_entry = tkinter.Entry(self.__course_entry_frame)
+
+        # Create button to add data
+        self.__add_button = tkinter.Button(self.__button_frame,
+                                           text='Add Data',
+                                           command=self.__add_data)
 
         # Create button to delete data by ID
         self.__delete_button = tkinter.Button(self.__button_frame,
-                                              text='Delete',
+                                              text='Delete Data',
                                               command=self.__delete_data)
-        # Create button to add data
-        self.__add_button = tkinter.Button(self.__button_frame,
-                                             text='Add Data',
-                                             command=self.__add_data)
 
         # Create exit button for user-friendly exit
         self.__exit_button = tkinter.Button(self.__button_frame,
@@ -132,31 +138,39 @@ class StudentDatabaseGUI:
         self.__student_ID_label.pack(side="left")
         self.__student_ID_entry.pack(side="left")
 
-        self.__last_label.pack(side="left")
-        self.__last_entry.pack(side="left")
+        self.__last_label.grid(column=0, row=0)
+        self.__last_entry.grid(column=1, row=0)
 
-        self.__first_label.pack(side="left")
-        self.__first_entry.pack(side="left")
+        self.__first_label.grid(column=2, row=0)
+        self.__first_entry.grid(column=3, row=0)
 
-        self.__year_label.pack(side="left")
-        self.__year_entry.pack(side="left")
+        self.__year_label.grid(column=4, row=0)
+        self.__year_entry.grid(column=5, row=0)
 
-        self.__course_name_label.pack(side="left")
-        self.__course_name_entry.pack(side="left")
+        self.__course_name_label.grid(column=0, row=1)
+        self.__course_name_entry.grid(column=1, row=1)
 
-        self.__course_ID_label.pack(side="left")
-        self.__course_ID_entry.pack(side="left")
+        self.__course_ID_label.grid(column=2, row=1)
+        self.__course_ID_entry.grid(column=3, row=1)
 
-        self.__professor_label.pack(side="left")
-        self.__professor_entry.pack(side="left")
+        self.__professor_label.grid(column=4, row=1)
+        self.__professor_entry.grid(column=5, row=1)
 
-        self.__delete_button.pack(side="left")
-        self.__add_button.pack(side="left", padx="10")
-        self.__exit_button.pack(side='left')
+        self.__add_button.pack(side="left", padx=5)
+        self.__delete_button.pack(side="left", padx=5)
+        self.__exit_button.pack(side='left', padx=5)
 
         self.__treeview_frame.pack(padx=(10, 10), pady=(10, 10))
-        self.__label_frame.pack(padx=(40, 40), pady=(10, 10))
-        self.__entry_frame.pack(padx=(40, 40), pady=(10, 10))
+        self.__treeview_separator.pack(fill="x", pady=(10, 10))
+
+        self.__label_frame.pack(padx=(40, 40), pady=(5, 5))
+        self.__id_entry_frame.pack(padx=(40, 40), pady=(10, 10))
+        self.__id_entry_separator.pack(fill="x", pady=(5, 5))
+
+        self.__student_entry_frame.pack(padx=(40, 40), pady=(5, 5))
+        self.__course_entry_frame.pack(padx=(40, 40), pady=(5, 5))
+        self.__data_entry_separator.pack(fill="x", pady=(5, 5))
+
         self.__button_frame.pack(padx=(40, 40), pady=(10, 40))
 
         # Main loop
@@ -174,31 +188,34 @@ class StudentDatabaseGUI:
         cur.execute('''SELECT student_id From Students
                      WHERE student_id == ?''', (requested_id,))
         results = cur.fetchone()
-    
+
         try:
             if results:
                 cur.execute('''DELETE FROM Students
                                     WHERE student_id == ?''',
-                                    (requested_id,))
-                
+                            (requested_id,))
+
                 conn.commit()
                 self.__displayed_data.set('The student was deleted.')
                 # Call update_treeview to update GUI
                 self.__update_treeview()
-                
+
             # If not, display "No student found with that ID"
             else:
                 # If no student with provided ID, error
                 self.__displayed_data.set(DISPLAYED_DATA_ERROR)
 
             self.__clear_box()
-        #If table field does not match correct int type
+        # If table field does not match correct int type
         except sqlite3.IntegrityError:
             self.__displayed_data.set('Error: Check int and str values')
 
         conn.close()
 
     def __add_data(self):
+
+
+
         # Connect to database
         conn = sqlite3.connect('student_database.db')
         cur = conn.cursor()
@@ -213,11 +230,12 @@ class StudentDatabaseGUI:
         requested_professor = self.__professor_entry.get()
 
         try:
-        # Add row with those values
+            # Add row with those values
             cur.execute('''INSERT INTO Students (student_id, last_name, first_name, school_year, course_name, course_ID, professor_name)
-                        VALUES (?,?,?,?,?,?,?) ''', 
-                        (requested_sid, requested_last, requested_first, requested_year, requested_cname, requested_cID, requested_professor))
-            
+                        VALUES (?,?,?,?,?,?,?) ''',
+                        (requested_sid, requested_last, requested_first, requested_year, requested_cname, requested_cID,
+                         requested_professor))
+
             conn.commit()
 
             self.__displayed_data.set('The student was added.')
@@ -225,11 +243,11 @@ class StudentDatabaseGUI:
             # Update GUI table
             self.__update_treeview()
             self.__clear_box()
-            
-        #If table field does not match correct int type
+
+        # If table field does not match correct int type
         except sqlite3.IntegrityError:
             self.__displayed_data.set('Error: Check int and str values')
-        
+
         conn.close()
 
     def __update_treeview(self):
@@ -251,12 +269,13 @@ class StudentDatabaseGUI:
     # Clear all entries boxes
     def __clear_box(self):
         self.__student_ID_entry.delete(0, END)
-        self.__first_entry.delete(0,END)
-        self.__last_entry.delete(0,END)
-        self.__year_entry.delete(0,END)
-        self.__course_name_entry.delete(0,END)
-        self.__course_ID_entry.delete(0,END)
-        self.__professor_entry.delete(0,END)
+        self.__first_entry.delete(0, END)
+        self.__last_entry.delete(0, END)
+        self.__year_entry.delete(0, END)
+        self.__course_name_entry.delete(0, END)
+        self.__course_ID_entry.delete(0, END)
+        self.__professor_entry.delete(0, END)
+
 
 if __name__ == '__main__':
     # Call both functions
