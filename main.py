@@ -220,7 +220,29 @@ class StudentDatabaseGUI:
             if results:
                 self.__displayed_data.set('Error: Student already exists with that ID')
             else:
-                self.__displayed_data.set('Error: Check int and str values')
+                if requested_sID.isdigit() is False:
+                    self.__displayed_data.set('Error: Student ID must be an integer')
+
+                elif requested_last.isalpha() is False:
+                    self.__displayed_data.set('Error: Student Last Name must only contain letters')
+
+                elif requested_first.isalpha() is False:
+                    self.__displayed_data.set('Error: Student First Name must only contain letters')
+
+                elif requested_year.isdigit() is False:
+                    self.__displayed_data.set('Error: Student Year must be an integer')
+
+                elif requested_cname.isalpha() is False:
+                    self.__displayed_data.set('Error: Course Name must only contain letters')
+
+                elif requested_cID.isdigit() is False:
+                    self.__displayed_data.set('Error: Course ID must be an integer')
+
+                elif requested_professor.isalpha() is False:
+                    self.__displayed_data.set('Error: Professor Name must only contain letters')
+                    
+                else:
+                    self.__displayed_data.set('Error: Unknown')
 
         conn.close()
 
