@@ -7,7 +7,7 @@ import tkinter
 import tkinter.ttk
 from tkinter import END
 
-DISPLAYED_DATA_DEFAULT = "Use Student ID to edit or delete data"
+DISPLAYED_DATA_DEFAULT = "Enter new Student ID to add data or existing ID to edit or delete data"
 DISPLAYED_DATA_ERROR = "No student found with that ID"
 
 TABLE_COLUMN_WIDTH = 100
