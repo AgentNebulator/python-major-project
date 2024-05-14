@@ -175,22 +175,27 @@ class StudentDatabaseGUI:
                      WHERE student_id == ?''', (requested_id,))
         results = cur.fetchone()
     
-        if results != None:
-            cur.execute('''DELETE FROM Students
-                                WHERE student_id == ?''',
-                                (requested_id,))
-            
-            conn.commit()
-            self.__displayed_data.set('The student was deleted.')
-            # Call update_treeview to update GUI
-            self.__update_treeview()
-            
-        # If not, display "No student found with that ID"
-        else:
-            # If no student with provided ID, error
-            self.__displayed_data.set(DISPLAYED_DATA_ERROR)
+        try:
+            if results:
+                cur.execute('''DELETE FROM Students
+                                    WHERE student_id == ?''',
+                                    (requested_id,))
+                
+                conn.commit()
+                self.__displayed_data.set('The student was deleted.')
+                # Call update_treeview to update GUI
+                self.__update_treeview()
+                
+            # If not, display "No student found with that ID"
+            else:
+                # If no student with provided ID, error
+                self.__displayed_data.set(DISPLAYED_DATA_ERROR)
 
-        self.__clear_box()
+            self.__clear_box()
+        #If table field does not match correct int type
+        except sqlite3.IntegrityError:
+            self.__displayed_data.set('Error: Check int and str values')
+
         conn.close()
 
     def __add_data(self):
@@ -207,18 +212,24 @@ class StudentDatabaseGUI:
         requested_cID = self.__course_ID_entry.get()
         requested_professor = self.__professor_entry.get()
 
+        try:
         # Add row with those values
-        cur.execute('''INSERT INTO Students (student_id, last_name, first_name, school_year, course_name, course_ID, professor_name)
-                    VALUES (?,?,?,?,?,?,?) ''', 
-                    (requested_sid, requested_last, requested_first, requested_year, requested_cname, requested_cID, requested_professor))
+            cur.execute('''INSERT INTO Students (student_id, last_name, first_name, school_year, course_name, course_ID, professor_name)
+                        VALUES (?,?,?,?,?,?,?) ''', 
+                        (requested_sid, requested_last, requested_first, requested_year, requested_cname, requested_cID, requested_professor))
+            
+            conn.commit()
+
+            self.__displayed_data.set('The student was added.')
+
+            # Update GUI table
+            self.__update_treeview()
+            self.__clear_box()
+            
+        #If table field does not match correct int type
+        except sqlite3.IntegrityError:
+            self.__displayed_data.set('Error: Check int and str values')
         
-        conn.commit()
-
-        self.__displayed_data.set('The student was added.')
-
-        # Update GUI table
-        self.__update_treeview()
-        self.__clear_box()
         conn.close()
 
     def __update_treeview(self):
