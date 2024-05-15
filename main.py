@@ -185,9 +185,6 @@ class StudentDatabaseGUI:
         tkinter.mainloop()
 
     def __add_data(self):
-        # Connect to database
-        conn = sqlite3.connect('student_database.db')
-        cur = conn.cursor()
 
         # Get users input in the GUI
         requested_sID = self.__student_ID_entry.get()
@@ -198,15 +195,24 @@ class StudentDatabaseGUI:
         requested_cID = self.__course_ID_entry.get()
         requested_professor = self.__professor_entry.get()
 
-        requested_values = (requested_sID, requested_last, requested_first, requested_year, requested_cname,
-                            requested_cID, requested_professor)
+        if len(requested_sID) != 5:
+            self.__displayed_data.set("Error: Student ID must be 5 characters in length")
+            return
+
+        # Connect to database
+        conn = sqlite3.connect('student_database.db')
+        cur = conn.cursor()
+
+        requested_values = (requested_sID, requested_last, requested_first, requested_year,
+                            requested_cname, requested_cID, requested_professor)
 
         # Test if every value is present
         if all(requested_values):
             try:
                 # Add row with those values
-                cur.execute('''INSERT INTO Students (student_id, last_name, first_name, school_year, course_name, course_ID, professor_name)
-                            VALUES (?,?,?,?,?,?,?) ''', requested_values)
+                cur.execute('''INSERT INTO Students (student_id, last_name, first_name, school_year, 
+                                    course_name, course_ID, professor_name) VALUES (?,?,?,?,?,?,?) ''',
+                            requested_values)
 
                 conn.commit()
 
@@ -228,23 +234,12 @@ class StudentDatabaseGUI:
                     if requested_sID.isdigit() is False:
                         self.__displayed_data.set('Error: Student ID must be an integer')
 
-                    elif requested_last.isalpha() is False:
-                        self.__displayed_data.set('Error: Student Last Name must only contain letters')
-
-                    elif requested_first.isalpha() is False:
-                        self.__displayed_data.set('Error: Student First Name must only contain letters')
-
                     elif requested_year.isdigit() is False:
                         self.__displayed_data.set('Error: Student Year must be an integer')
-
-                    elif requested_cname.isalpha() is False:
-                        self.__displayed_data.set('Error: Course Name must only contain letters')
 
                     elif requested_cID.isdigit() is False:
                         self.__displayed_data.set('Error: Course ID must be an integer')
 
-                    elif requested_professor.isalpha() is False:
-                        self.__displayed_data.set('Error: Professor Name must only contain letters')
         else:
             for i in range(len(requested_values)-1, -1, -1):
                 if not requested_values[i]:
