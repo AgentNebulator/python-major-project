@@ -248,10 +248,6 @@ class StudentDatabaseGUI:
         conn.close()
 
     def __edit_data(self):
-        # Connect to database
-        conn = sqlite3.connect('student_database.db')
-        cur = conn.cursor()
-
         # Get users input in the GUI
         requested_sID = self.__student_ID_entry.get()
         requested_last = self.__last_entry.get()
@@ -260,6 +256,10 @@ class StudentDatabaseGUI:
         requested_cname = self.__course_name_entry.get()
         requested_cID = self.__course_ID_entry.get()
         requested_professor = self.__professor_entry.get()
+
+        # Connect to database
+        conn = sqlite3.connect('student_database.db')
+        cur = conn.cursor()
 
         requested_values = (requested_sID, requested_last, requested_first, requested_year, requested_cname,
                             requested_cID, requested_professor)
