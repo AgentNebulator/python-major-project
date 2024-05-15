@@ -201,6 +201,7 @@ class StudentDatabaseGUI:
         requested_values = (requested_sID, requested_last, requested_first, requested_year, requested_cname,
                             requested_cID, requested_professor)
 
+        # Test if every value is present
         if all(requested_values):
             try:
                 # Add row with those values
