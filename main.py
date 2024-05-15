@@ -291,6 +291,7 @@ class StudentDatabaseGUI:
                 self.__displayed_data.set('The student was edited.')
                 # Call update_treeview to update GUI
                 self.__update_treeview()
+                self.__clear_box()
             else:
                 self.__displayed_data.set('Error: Check int and str values')
         # If table field does not match correct int type
