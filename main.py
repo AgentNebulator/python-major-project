@@ -231,13 +231,13 @@ class StudentDatabaseGUI:
                 if results:
                     self.__displayed_data.set('Error: Student already exists with that ID')
                 else:
-                    if requested_sID.isdigit() is False:
+                    if not requested_sID.isdigit():
                         self.__displayed_data.set('Error: Student ID must be an integer')
 
-                    elif requested_year.isdigit() is False:
+                    elif not requested_year.isdigit():
                         self.__displayed_data.set('Error: Student Year must be an integer')
 
-                    elif requested_cID.isdigit() is False:
+                    elif not requested_cID.isdigit():
                         self.__displayed_data.set('Error: Course ID must be an integer')
 
         else:
@@ -297,6 +297,15 @@ class StudentDatabaseGUI:
         # If table field does not match correct int type
         except sqlite3.IntegrityError:
             self.__displayed_data.set('Error: Check int and str values')
+
+            if not requested_sID.isdigit():
+                self.__displayed_data.set('Error: Student ID must be an integer')
+
+            elif not requested_year.isdigit():
+                self.__displayed_data.set('Error: Student Year must be an integer')
+
+            elif not requested_cID.isdigit():
+                self.__displayed_data.set('Error: Course ID must be an integer')
 
         conn.close()
 
