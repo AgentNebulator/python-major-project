@@ -18,7 +18,7 @@ ERROR_ID_ALREADY_EXISTS = 'Error: Student already exists with that ID'
 ERROR_ID_WRONG_LENGTH = "Error: Student ID must be 5 characters in length"
 ERROR_ID_NOT_INT = 'Error: Student ID must be an integer'
 
-ERROR_FIELD_EMPTY = "Error: no value entered for {0}"
+ERROR_FIELD_EMPTY = "Error: No value entered for {0}"
 
 ERROR_SCHOOL_YEAR_NOT_INT = 'Error: School Year must be an integer'
 ERROR_COURSE_ID_NOT_INT = 'Error: Course ID must be an integer'
