@@ -18,13 +18,17 @@ ERROR_ID_EMPTY = "Error: Student ID is required"
 ERROR_ID_NOT_FOUND = "Error: No student found with that ID"
 ERROR_ID_ALREADY_EXISTS = 'Error: Student already exists with that ID'
 ERROR_ID_WRONG_LENGTH = "Error: Student ID must be 5 characters in length"
-ERROR_ID_NOT_INT = 'Error: Student ID must be an integer'
 
 ERROR_FIELD_EMPTY = "Error: No value entered for {0}"
 ERROR_NO_EDITS_MADE = "Error: All fields empty, no edits are being made"
 
+ERROR_ID_NOT_INT = 'Error: Student ID must be an integer'
+ERROR_LAST_NAME_NOT_STR = 'Error: Last Name must be text'
+ERROR_FIRST_NAME_NOT_STR = 'Error: First Name must be text'
 ERROR_SCHOOL_YEAR_NOT_INT = 'Error: School Year must be an integer'
+ERROR_COURSE_NAME_NOT_STR = 'Error: Course Name must be text'
 ERROR_COURSE_ID_NOT_INT = 'Error: Course ID must be an integer'
+ERROR_PROF_NAME_NOT_STR = 'Error: Professor Name must be text'
 
 ERROR_DEFAULT = 'Error: Database manipulation failed, please try again'
 
@@ -457,17 +461,27 @@ class StudentDatabaseGUI:
             return False
 
         # Variables for readability
-        requested_year = requested_values[3]
-        requested_cID = requested_values[5]
-
-        # Tests if Student ID is numeric
-        if not requested_sID.isdigit():
-            self.__displayed_data.set(ERROR_ID_NOT_INT)
-            return False
+        (requested_sID, requested_last, requested_first, requested_year, requested_cname,
+         requested_cID, requested_professor) = requested_values
 
         # Tests if Student ID is 5 characters long
         if len(requested_sID) != 5:
             self.__displayed_data.set(ERROR_ID_WRONG_LENGTH)
+            return False
+
+        # Tests if the student ID is numeric
+        if not requested_sID.isdigit():
+            self.__displayed_data.set(ERROR_ID_NOT_INT)
+            return False
+
+        # Tests if the last name is numeric or not specified
+        if requested_last and requested_last.isdigit():
+            self.__displayed_data.set(ERROR_LAST_NAME_NOT_STR)
+            return False
+
+        # Tests if the first name is numeric or not specified
+        if requested_first and requested_first.isdigit():
+            self.__displayed_data.set(ERROR_FIRST_NAME_NOT_STR)
             return False
 
         # Tests if the year is numeric or not specified
@@ -475,9 +489,19 @@ class StudentDatabaseGUI:
             self.__displayed_data.set(ERROR_SCHOOL_YEAR_NOT_INT)
             return False
 
+        # Tests if the course name is numeric or not specified
+        if requested_cname and requested_cname.isdigit():
+            self.__displayed_data.set(ERROR_COURSE_NAME_NOT_STR)
+            return False
+
         # Tests if the course ID is numeric or not specified
         if requested_cID and not requested_cID.isdigit():
             self.__displayed_data.set(ERROR_COURSE_ID_NOT_INT)
+            return False
+
+        # Tests if the professor is numeric or not specified
+        if requested_professor and requested_professor.isdigit():
+            self.__displayed_data.set(ERROR_PROF_NAME_NOT_STR)
             return False
 
         # All tests passed by this point
