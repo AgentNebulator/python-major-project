@@ -210,8 +210,8 @@ class StudentDatabaseGUI:
         help_text = (
             "This is an interface for managing student records.",
             "",
-            "The interface displays a table and fields to manage the data. The table is ",
-            "organized by database field and uses the Student ID to identify each row. ",
+            "The interface displays a table with sample data of students already provided. The table is ",
+            "organized by the headings above and uses the Student ID to identify each row. ",
             "If you do not see all the student data, you may need to scroll."
             "",
             "The entry fields are used in conjunction with the buttons to add, edit, ",
