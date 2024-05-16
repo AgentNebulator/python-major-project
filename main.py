@@ -12,8 +12,18 @@ TITLE_FONT = "Helvetica 12 bold"
 
 DISPLAY_DEFAULT = "Enter new Student ID to add data or existing ID to edit/delete data"
 
-ID_NOT_FOUND_ERROR = "Error: No student found with that ID"
-ID_WRONG_LENGTH_ERROR = "Error: Student ID must be 5 characters in length"
+ERROR_ID_EMPTY = "Error: Student ID is required"
+ERROR_ID_NOT_FOUND = "Error: No student found with that ID"
+ERROR_ID_ALREADY_EXISTS = 'Error: Student already exists with that ID'
+ERROR_ID_WRONG_LENGTH = "Error: Student ID must be 5 characters in length"
+ERROR_ID_NOT_INT = 'Error: Student ID must be an integer'
+
+ERROR_FIELD_EMPTY = "Error: no value entered for {0}"
+
+ERROR_SCHOOL_YEAR_NOT_INT = 'Error: School Year must be an integer'
+ERROR_COURSE_ID_NOT_INT = 'Error: Course ID must be an integer'
+
+ERROR_DEFAULT = 'Error: Database manipulation failed, please try again'
 
 FIELD_TITLES = ["Student ID", "Last Name", "First Name", "School Year", "Course Name", "Course ID", "Professor Name"]
 
@@ -238,8 +248,7 @@ class StudentDatabaseGUI:
 
         requested_sID, requested_values = self.__get_entered_data()
 
-        if len(requested_sID) != 5:
-            self.__displayed_data.set(ID_WRONG_LENGTH_ERROR)
+        if not self.__check_data_valid(requested_sID, requested_values, False):
             return
 
         # Connect to database
@@ -269,24 +278,14 @@ class StudentDatabaseGUI:
                 results = cur.fetchone()
 
                 if results:
-                    self.__displayed_data.set('Error: Student already exists with that ID')
+                    self.__displayed_data.set(ERROR_ID_ALREADY_EXISTS)
                 else:
-                    requested_year = requested_values[3]
-                    requested_cID = requested_values[5]
-
-                    if not requested_sID.isdigit():
-                        self.__displayed_data.set('Error: Student ID must be an integer')
-
-                    elif not requested_year.isdigit():
-                        self.__displayed_data.set('Error: Student Year must be an integer')
-
-                    elif not requested_cID.isdigit():
-                        self.__displayed_data.set('Error: Course ID must be an integer')
+                    self.__displayed_data.set(ERROR_DEFAULT)
 
         else:
             for i in range(len(requested_values) - 1, -1, -1):
                 if not requested_values[i]:
-                    self.__displayed_data.set(f"Error: no value entered for {FIELD_TITLES[i]}")
+                    self.__displayed_data.set(ERROR_FIELD_EMPTY.format(FIELD_TITLES[i]))
 
         conn.close()
 
@@ -302,45 +301,35 @@ class StudentDatabaseGUI:
                     WHERE student_id == ?''', (requested_sID,))
         results = cur.fetchone()
 
+        if not self.__check_data_valid(requested_sID, requested_values, results):
+            return
+
         try:
-            if results:
-                new_database_data = list(results)
+            new_database_data = list(results)
 
-                for i in range(len(requested_values)):
-                    if requested_values[i]:
-                        new_database_data[i] = requested_values[i]
+            for i in range(len(requested_values)):
+                if requested_values[i]:
+                    new_database_data[i] = requested_values[i]
 
-                # Move ID to last position
-                new_database_data = new_database_data[1:] + [new_database_data[0]]
+            # Move ID to last position
+            new_database_data = new_database_data[1:] + [new_database_data[0]]
 
-                cur.execute('''UPDATE Students SET 
-                                        last_name = ?,
-                                        first_name = ?,
-                                        school_year = ?,
-                                        course_name = ?,
-                                        course_id = ?,
-                                        professor_name = ?
-                                    WHERE student_id == ?''', new_database_data)
-                conn.commit()
-                self.__displayed_data.set('The student was edited.')
-                # Call update_treeview to update GUI
-                self.__update_treeview()
-                self.__clear_box()
-            else:
-                self.__displayed_data.set('Error: Check int and str values')
-        # If table field does not match correct int type
-        except sqlite3.IntegrityError:
-            requested_year = requested_values[3]
-            requested_cID = requested_values[5]
-
-            if not requested_sID.isdigit():
-                self.__displayed_data.set('Error: Student ID must be an integer')
-
-            elif not requested_year.isdigit():
-                self.__displayed_data.set('Error: Student Year must be an integer')
-
-            elif not requested_cID.isdigit():
-                self.__displayed_data.set('Error: Course ID must be an integer')
+            cur.execute('''UPDATE Students SET 
+                                    last_name = ?,
+                                    first_name = ?,
+                                    school_year = ?,
+                                    course_name = ?,
+                                    course_id = ?,
+                                    professor_name = ?
+                                WHERE student_id == ?''', new_database_data)
+            conn.commit()
+            self.__displayed_data.set('The student was edited.')
+            # Call update_treeview to update GUI
+            self.__update_treeview()
+            self.__clear_box()
+        # If an error occurs
+        except:
+            self.__displayed_data.set(ERROR_DEFAULT)
 
         conn.close()
 
@@ -352,34 +341,28 @@ class StudentDatabaseGUI:
         # Use that input to find the row in the database
         requested_id = self.__student_ID_entry.get()
 
-        if requested_id:
+        # If it finds the data, delete it
+        cur.execute('''SELECT student_id From Students
+                    WHERE student_id == ?''', (requested_id,))
+        results = cur.fetchone()
 
-            # If it finds the data, delete it
-            cur.execute('''SELECT student_id From Students
-                        WHERE student_id == ?''', (requested_id,))
-            results = cur.fetchone()
+        if not results:
+            self.__displayed_data.set(ERROR_ID_NOT_FOUND)
+            return False
 
-            try:
-                if results:
-                    cur.execute('''DELETE FROM Students
-                                        WHERE student_id == ?''',
-                                (requested_id,))
+        try:
+            cur.execute('''DELETE FROM Students
+                                WHERE student_id == ?''',
+                        (requested_id,))
 
-                    conn.commit()
-                    self.__displayed_data.set('The student was deleted.')
-                    # Call update_treeview to update GUI
-                    self.__update_treeview()
-                    self.__clear_box()
-
-                # If not, display "No student found with that ID"
-                else:
-                    # If no student with provided ID, error
-                    self.__displayed_data.set(ID_NOT_FOUND_ERROR)
-            # If table field does not match correct int type
-            except sqlite3.IntegrityError:
-                self.__displayed_data.set('Error: Check int and str values')
-        else:
-            self.__displayed_data.set('Enter a value for Student ID')
+            conn.commit()
+            self.__displayed_data.set('The student was deleted.')
+            # Call update_treeview to update GUI
+            self.__update_treeview()
+            self.__clear_box()
+        # If an error occurs
+        except:
+            self.__displayed_data.set(ERROR_DEFAULT)
 
         conn.close()
 
@@ -423,6 +406,37 @@ class StudentDatabaseGUI:
         self.__course_name_entry.delete(0, END)
         self.__course_ID_entry.delete(0, END)
         self.__professor_entry.delete(0, END)
+
+    def __check_data_valid(self, requested_sID, requested_values, database_data):
+
+        if not requested_sID:
+            self.__displayed_data.set(ERROR_ID_EMPTY)
+            return
+
+        if not database_data is False and not database_data:
+            self.__displayed_data.set(ERROR_ID_NOT_FOUND)
+            return False
+
+        requested_year = requested_values[3]
+        requested_cID = requested_values[5]
+
+        if not requested_sID.isdigit():
+            self.__displayed_data.set(ERROR_ID_NOT_INT)
+            return False
+
+        if len(requested_sID) != 5:
+            self.__displayed_data.set(ERROR_ID_WRONG_LENGTH)
+            return False
+
+        if requested_year and not requested_year.isdigit():
+            self.__displayed_data.set(ERROR_SCHOOL_YEAR_NOT_INT)
+            return False
+
+        if requested_cID and not requested_cID.isdigit():
+            self.__displayed_data.set()
+            return False
+
+        return True
 
 
 if __name__ == '__main__':
