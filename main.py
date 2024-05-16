@@ -7,11 +7,13 @@ import tkinter
 import tkinter.ttk
 from tkinter import END
 
+TITLE_TEXT = "Student Records Database"
+TITLE_FONT = "Helvetica 12 bold"
+
 DISPLAY_DEFAULT = "Enter new Student ID to add data or existing ID to edit/delete data"
 
 ID_NOT_FOUND_ERROR = "Error: No student found with that ID"
 ID_WRONG_LENGTH_ERROR = "Error: Student ID must be 5 characters in length"
-
 
 FIELD_TITLES = ["Student ID", "Last Name", "First Name", "School Year", "Course Name", "Course ID", "Professor Name"]
 
@@ -55,9 +57,10 @@ class StudentDatabaseGUI:
 
         # Initiate main window, frames, and labels
         self.__main_window = tkinter.Tk()
-        self.__main_window.title("Database")
+        self.__main_window.title("Student Records Database")
 
         # Create frames
+        self.__title_frame = tkinter.Frame(self.__main_window)
         self.__treeview_frame = tkinter.Frame(self.__main_window)
         self.__treeview_separator = tkinter.ttk.Separator(self.__main_window, orient="horizontal")
         self.__label_frame = tkinter.Frame(self.__main_window)
@@ -68,25 +71,27 @@ class StudentDatabaseGUI:
         self.__data_entry_separator = tkinter.ttk.Separator(self.__main_window, orient="horizontal")
         self.__button_frame = tkinter.Frame(self.__main_window)
 
+        self.__title_label = tkinter.Label(self.__title_frame, text=TITLE_TEXT, font=TITLE_FONT)
+
         # Create data table (well, treeview)
         # Treeview information sourced from https://pythonguides.com/python-tkinter-table-tutorial/
-        self.__data_table = tkinter.ttk.Treeview(self.__treeview_frame)
+        self.__data_treeview = tkinter.ttk.Treeview(self.__treeview_frame)
 
         # Set the headers to the data headers
-        self.__data_table['columns'] = FIELD_TITLES
+        self.__data_treeview['columns'] = FIELD_TITLES
 
         # Set the default columns and headings to not show
-        self.__data_table.column("#0", width=0, stretch=False)
-        self.__data_table.heading("#0", anchor="center")
+        self.__data_treeview.column("#0", width=0, stretch=False)
+        self.__data_treeview.heading("#0", anchor="center")
 
         # Format columns and headings
         for header in FIELD_TITLES:
-            self.__data_table.column(header, anchor="center", width=TABLE_COLUMN_WIDTH)
-            self.__data_table.heading(header, text=header, anchor="center")
+            self.__data_treeview.column(header, anchor="center", width=TABLE_COLUMN_WIDTH)
+            self.__data_treeview.heading(header, text=header, anchor="center")
 
         # Insert data
         for student in data:
-            self.__data_table.insert(parent='', index='end', values=student)
+            self.__data_treeview.insert(parent='', index='end', values=student)
 
         # Create label text for special requested data
         self.__displayed_data = tkinter.StringVar()
@@ -122,19 +127,24 @@ class StudentDatabaseGUI:
                                                anchor="e")
         self.__professor_entry = tkinter.Entry(self.__course_entry_frame)
 
+        # Create button to show program instructions
+        self.__help_button = tkinter.Button(self.__button_frame,
+                                            text='Help',
+                                            command=self.__help_menu)
+
         # Create button to add data
         self.__add_button = tkinter.Button(self.__button_frame,
-                                           text='Add Data',
+                                           text='Add Student',
                                            command=self.__add_data)
 
         # Create button to edit data by ID
         self.__edit_button = tkinter.Button(self.__button_frame,
-                                            text='Edit Data',
+                                            text='Edit Student',
                                             command=self.__edit_data)
 
         # Create button to delete data by ID
         self.__delete_button = tkinter.Button(self.__button_frame,
-                                              text='Delete Data',
+                                              text='Delete Student',
                                               command=self.__delete_data)
 
         # Create exit button for user-friendly exit
@@ -143,9 +153,10 @@ class StudentDatabaseGUI:
                                             command=self.__main_window.destroy)
 
         # Pack elements
-        self.__data_table.pack()
+        self.__title_label.pack(pady=0)
 
-        self.__data_label.pack(ipadx=10, ipady=10)
+        self.__data_treeview.pack()
+        self.__data_label.pack()
 
         self.__student_ID_label.pack(side="left")
         self.__student_ID_entry.pack(side="left")
@@ -168,10 +179,13 @@ class StudentDatabaseGUI:
         self.__professor_label.grid(column=4, row=1)
         self.__professor_entry.grid(column=5, row=1)
 
+        self.__help_button.pack(side="left", padx=5)
         self.__add_button.pack(side="left", padx=5)
         self.__edit_button.pack(side="left", padx=5)
         self.__delete_button.pack(side="left", padx=5)
         self.__exit_button.pack(side='left', padx=5)
+
+        self.__title_frame.pack(padx=(10, 10), pady=(10, 5))
 
         self.__treeview_frame.pack(padx=(10, 10), pady=(10, 10))
         self.__treeview_separator.pack(fill="x", pady=(10, 10))
@@ -188,6 +202,37 @@ class StudentDatabaseGUI:
 
         # Main loop
         tkinter.mainloop()
+
+    def __help_menu(self):
+        self.__help_window = tkinter.Toplevel(self.__main_window)
+        self.__help_window.title("Student Records Database - Help Menu")
+
+        help_text = (
+            "This is an interface for managing student records.",
+            "",
+            "The interface displays a table and fields to manage the data. The table is ",
+            "organized by database field and uses the Student ID to identify each row. ",
+            "If you do not see all the student data, you may need to scroll."
+            "",
+            "The entry fields are used in conjunction with the buttons to add, edit, ",
+            "and delete student data.",
+            "",
+            "To add a student, enter the Student ID and other data into the fields, ",
+            "then press Add Student.",
+            "",
+            "To edit a student record, enter the Student ID and new data into its ",
+            "corresponding fields, then press Edit Student. ",
+            "",
+            "To delete a student, you only need to use the Student ID."
+        )
+
+        joined_help_text = "\n".join(help_text)
+
+        self.__help_frame = tkinter.Frame(self.__help_window)
+        self.__help_label = tkinter.Label(self.__help_frame, text=joined_help_text, anchor="center")
+
+        self.__help_frame.pack()
+        self.__help_label.pack(padx=20, pady=20)
 
     def __add_data(self):
 
@@ -340,8 +385,8 @@ class StudentDatabaseGUI:
 
     def __update_treeview(self):
         # Clear the existing data in the treeview
-        for item in self.__data_table.get_children():
-            self.__data_table.delete(item)
+        for item in self.__data_treeview.get_children():
+            self.__data_treeview.delete(item)
 
         # Re-fetch and re-insert the data from the database
         conn = sqlite3.connect('student_database.db')
@@ -350,7 +395,7 @@ class StudentDatabaseGUI:
         data = cur.fetchall()
 
         for student in data:
-            self.__data_table.insert(parent='', index='end', values=student)
+            self.__data_treeview.insert(parent='', index='end', values=student)
 
         conn.close()
 
