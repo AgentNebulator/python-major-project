@@ -7,6 +7,8 @@ import tkinter
 import tkinter.ttk
 from tkinter import END
 
+# Relevant constants
+
 TITLE_TEXT = "Student Records Database"
 TITLE_FONT = "Helvetica 12 bold"
 
@@ -29,18 +31,19 @@ FIELD_TITLES = ["Student ID", "Last Name", "First Name", "School Year", "Course 
 
 TABLE_COLUMN_WIDTH = 100
 
-
+# Main function
 def main():
+    # Connect to the database
     conn = sqlite3.connect('student_database.db')
     cur = conn.cursor()
 
-    # Create table
+    # Create table of students
     cur.execute(
         '''CREATE TABLE IF NOT EXISTS Students (student_id INTEGER PRIMARY KEY NOT NULL, last_name TEXT, 
         first_name TEXT, school_year INTEGER, course_name TEXT, course_ID INTEGER, professor_name TEXT)'''
     )
 
-    # Enter data
+    # Enter default data
     cur.executemany('INSERT OR IGNORE INTO Students VALUES (?, ?, ?, ?, ?, ?, ?)', student_data.data)
 
     # Close the connection
@@ -52,6 +55,7 @@ def main():
 class StudentDatabaseGUI:
     # Use variable data_table from main() to show table
     def __init__(self):
+        # Connect to the database
         conn = sqlite3.connect('student_database.db')
         cur = conn.cursor()
 
@@ -81,6 +85,7 @@ class StudentDatabaseGUI:
         self.__data_entry_separator = tkinter.ttk.Separator(self.__main_window, orient="horizontal")
         self.__button_frame = tkinter.Frame(self.__main_window)
 
+        # Create window title
         self.__title_label = tkinter.Label(self.__title_frame, text=TITLE_TEXT, font=TITLE_FONT)
 
         # Create data table (well, treeview)
@@ -111,7 +116,7 @@ class StudentDatabaseGUI:
         self.__data_label = tkinter.Label(self.__label_frame,
                                           textvariable=self.__displayed_data, )
 
-        # Create label and entry box for student ID
+        # Create labels and entry boxes for student info
         self.__student_ID_label = tkinter.Label(self.__id_entry_frame, text=f"{FIELD_TITLES[0]}: ")
         self.__student_ID_entry = tkinter.Entry(self.__id_entry_frame)
 
@@ -214,9 +219,11 @@ class StudentDatabaseGUI:
         tkinter.mainloop()
 
     def __help_menu(self):
+        # Create help window
         self.__help_window = tkinter.Toplevel(self.__main_window)
         self.__help_window.title("Student Records Database - Help Menu")
 
+        # Set help text
         help_text = (
             "This is an interface for managing student records.",
             "",
@@ -236,18 +243,22 @@ class StudentDatabaseGUI:
             "To delete a student, you only need to use the Student ID."
         )
 
+        # Join help text for use, with a line break between each
         joined_help_text = "\n".join(help_text)
 
+        # Create frame and label for help text
         self.__help_frame = tkinter.Frame(self.__help_window)
         self.__help_label = tkinter.Label(self.__help_frame, text=joined_help_text, anchor="center")
 
+        # Pack frame and label
         self.__help_frame.pack()
         self.__help_label.pack(padx=20, pady=20)
 
     def __add_data(self):
-
+        # Get data from entry fields
         requested_sID, requested_values = self.__get_entered_data()
 
+        # Confirm data is not invalid
         if not self.__check_data_valid(requested_sID, requested_values, False):
             return
 
@@ -283,31 +294,38 @@ class StudentDatabaseGUI:
                     self.__displayed_data.set(ERROR_DEFAULT)
 
         else:
+            # Check which value is not present
+            # (iterating backwards so the first unfilled field shows up, not the last)
             for i in range(len(requested_values) - 1, -1, -1):
                 if not requested_values[i]:
                     self.__displayed_data.set(ERROR_FIELD_EMPTY.format(FIELD_TITLES[i]))
 
+        # Close connection
         conn.close()
 
     def __edit_data(self):
-
+        # Get data from entry fields
         requested_sID, requested_values = self.__get_entered_data()
 
         # Connect to database
         conn = sqlite3.connect('student_database.db')
         cur = conn.cursor()
 
+        # Get student with entered ID
         cur.execute('''SELECT * From Students
                     WHERE student_id == ?''', (requested_sID,))
         results = cur.fetchone()
 
+        # Confirm data is not invalid
         if not self.__check_data_valid(requested_sID, requested_values, results):
             return
 
         try:
+            # Create list out of current data (to be overwritten)
             new_database_data = list(results)
 
             for i in range(len(requested_values)):
+                # Only overwrite existing data if field has new content
                 if requested_values[i]:
                     new_database_data[i] = requested_values[i]
 
@@ -322,15 +340,20 @@ class StudentDatabaseGUI:
                                     course_id = ?,
                                     professor_name = ?
                                 WHERE student_id == ?''', new_database_data)
+
             conn.commit()
+
             self.__displayed_data.set('The student was edited.')
-            # Call update_treeview to update GUI
+
+            # Call update_treeview to update GUI and clear entry boxes
             self.__update_treeview()
             self.__clear_box()
+
         # If an error occurs
         except:
             self.__displayed_data.set(ERROR_DEFAULT)
 
+        # Close connection
         conn.close()
 
     def __delete_data(self):
@@ -341,29 +364,35 @@ class StudentDatabaseGUI:
         # Use that input to find the row in the database
         requested_id = self.__student_ID_entry.get()
 
-        # If it finds the data, delete it
+        # Try and find data
         cur.execute('''SELECT student_id From Students
                     WHERE student_id == ?''', (requested_id,))
         results = cur.fetchone()
 
+        # If data isn't found, stop execution
         if not results:
             self.__displayed_data.set(ERROR_ID_NOT_FOUND)
             return False
 
         try:
+            # Delete data
             cur.execute('''DELETE FROM Students
                                 WHERE student_id == ?''',
                         (requested_id,))
 
             conn.commit()
+
             self.__displayed_data.set('The student was deleted.')
-            # Call update_treeview to update GUI
+
+            # Call update_treeview to update GUI and clear boxes
             self.__update_treeview()
             self.__clear_box()
+
         # If an error occurs
         except:
             self.__displayed_data.set(ERROR_DEFAULT)
 
+        # Close connection
         conn.close()
 
     def __update_treeview(self):
@@ -380,6 +409,7 @@ class StudentDatabaseGUI:
         for student in data:
             self.__data_treeview.insert(parent='', index='end', values=student)
 
+        # Close connection
         conn.close()
 
     # Get users input in the GUI
@@ -407,39 +437,50 @@ class StudentDatabaseGUI:
         self.__course_ID_entry.delete(0, END)
         self.__professor_entry.delete(0, END)
 
+    # Check that the entered data is valid
     def __check_data_valid(self, requested_sID, requested_values, database_data):
 
+        # Tests if the Student ID is set
         if not requested_sID:
             self.__displayed_data.set(ERROR_ID_EMPTY)
             return
 
+        # Tests if the Student ID is found in the database
+        # Note that this is disabled if set to False,
+        # since add_data does not want this behavior
         if database_data is not False and not database_data:
             self.__displayed_data.set(ERROR_ID_NOT_FOUND)
             return False
 
+        # Variables for readability
         requested_year = requested_values[3]
         requested_cID = requested_values[5]
 
+        # Tests if Student ID is numeric
         if not requested_sID.isdigit():
             self.__displayed_data.set(ERROR_ID_NOT_INT)
             return False
 
+        # Tests if Student ID is 5 characters long
         if len(requested_sID) != 5:
             self.__displayed_data.set(ERROR_ID_WRONG_LENGTH)
             return False
 
+        # Tests if the year is numeric or not specified
         if requested_year and not requested_year.isdigit():
             self.__displayed_data.set(ERROR_SCHOOL_YEAR_NOT_INT)
             return False
 
+        # Tests if the course ID is numeric or not specified
         if requested_cID and not requested_cID.isdigit():
             self.__displayed_data.set(ERROR_COURSE_ID_NOT_INT)
             return False
 
+        # All tests passed by this point
         return True
 
 
 if __name__ == '__main__':
-    # Call both functions
+    # Call main and start database
     main()
     student_gui = StudentDatabaseGUI()
