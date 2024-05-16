@@ -7,8 +7,11 @@ import tkinter
 import tkinter.ttk
 from tkinter import END
 
-DISPLAYED_DATA_DEFAULT = "Enter new Student ID to add data or existing ID to edit or delete data"
-DISPLAYED_DATA_ERROR = "No student found with that ID"
+DISPLAY_DEFAULT = "Enter new Student ID to add data or existing ID to edit/delete data"
+
+ID_NOT_FOUND_ERROR = "Error: No student found with that ID"
+ID_WRONG_LENGTH_ERROR = "Error: Student ID must be 5 characters in length"
+
 
 FIELD_TITLES = ["Student ID", "Last Name", "First Name", "School Year", "Course Name", "Course ID", "Professor Name"]
 
@@ -42,12 +45,10 @@ class StudentDatabaseGUI:
 
         # Select the data and extract results
         cur.execute('SELECT * FROM Students')
-        # headers = [desc[0] for desc in cur.description]  # headers are the column headers
-        headers = ["Student ID", "Last Name", "First Name", "School Year", "Course Name", "Course ID", "Professor Name"]
         data = cur.fetchall()  # data is the data in the table, excluding headers
 
-        # Put the results together as a tuple and store
-        self.__data = (headers, data)
+        # Store results as a tuple
+        self.__data = data
 
         # Close connection
         conn.close()
@@ -72,24 +73,24 @@ class StudentDatabaseGUI:
         self.__data_table = tkinter.ttk.Treeview(self.__treeview_frame)
 
         # Set the headers to the data headers
-        self.__data_table['columns'] = self.__data[0]
+        self.__data_table['columns'] = FIELD_TITLES
 
         # Set the default columns and headings to not show
         self.__data_table.column("#0", width=0, stretch=False)
         self.__data_table.heading("#0", anchor="center")
 
         # Format columns and headings
-        for header in self.__data[0]:
+        for header in FIELD_TITLES:
             self.__data_table.column(header, anchor="center", width=TABLE_COLUMN_WIDTH)
             self.__data_table.heading(header, text=header, anchor="center")
 
         # Insert data
-        for student in self.__data[1]:
+        for student in data:
             self.__data_table.insert(parent='', index='end', values=student)
 
         # Create label text for special requested data
         self.__displayed_data = tkinter.StringVar()
-        self.__displayed_data.set(DISPLAYED_DATA_DEFAULT)
+        self.__displayed_data.set(DISPLAY_DEFAULT)
 
         # Create label and format with text
         self.__data_label = tkinter.Label(self.__label_frame,
@@ -102,19 +103,23 @@ class StudentDatabaseGUI:
         self.__last_label = tkinter.Label(self.__student_entry_frame, text=f"{FIELD_TITLES[1]}: ", width=12, anchor="e")
         self.__last_entry = tkinter.Entry(self.__student_entry_frame)
 
-        self.__first_label = tkinter.Label(self.__student_entry_frame, text=f"{FIELD_TITLES[2]}: ", width=10, anchor="e")
+        self.__first_label = tkinter.Label(self.__student_entry_frame, text=f"{FIELD_TITLES[2]}: ", width=10,
+                                           anchor="e")
         self.__first_entry = tkinter.Entry(self.__student_entry_frame)
 
         self.__year_label = tkinter.Label(self.__student_entry_frame, text=f"{FIELD_TITLES[3]}: ", width=13, anchor="e")
         self.__year_entry = tkinter.Entry(self.__student_entry_frame)
 
-        self.__course_name_label = tkinter.Label(self.__course_entry_frame, text=f"{FIELD_TITLES[4]}: ", width=12, anchor="e")
+        self.__course_name_label = tkinter.Label(self.__course_entry_frame, text=f"{FIELD_TITLES[4]}: ", width=12,
+                                                 anchor="e")
         self.__course_name_entry = tkinter.Entry(self.__course_entry_frame)
 
-        self.__course_ID_label = tkinter.Label(self.__course_entry_frame, text=f"{FIELD_TITLES[5]}: ", width=10, anchor="e")
+        self.__course_ID_label = tkinter.Label(self.__course_entry_frame, text=f"{FIELD_TITLES[5]}: ", width=10,
+                                               anchor="e")
         self.__course_ID_entry = tkinter.Entry(self.__course_entry_frame)
 
-        self.__professor_label = tkinter.Label(self.__course_entry_frame, text=f"{FIELD_TITLES[6]}: ", width=13, anchor="e")
+        self.__professor_label = tkinter.Label(self.__course_entry_frame, text=f"{FIELD_TITLES[6]}: ", width=13,
+                                               anchor="e")
         self.__professor_entry = tkinter.Entry(self.__course_entry_frame)
 
         # Create button to add data
@@ -124,8 +129,8 @@ class StudentDatabaseGUI:
 
         # Create button to edit data by ID
         self.__edit_button = tkinter.Button(self.__button_frame,
-                                           text='Edit Data',
-                                           command=self.__edit_data)
+                                            text='Edit Data',
+                                            command=self.__edit_data)
 
         # Create button to delete data by ID
         self.__delete_button = tkinter.Button(self.__button_frame,
@@ -186,25 +191,15 @@ class StudentDatabaseGUI:
 
     def __add_data(self):
 
-        # Get users input in the GUI
-        requested_sID = self.__student_ID_entry.get()
-        requested_last = self.__last_entry.get()
-        requested_first = self.__first_entry.get()
-        requested_year = self.__year_entry.get()
-        requested_cname = self.__course_name_entry.get()
-        requested_cID = self.__course_ID_entry.get()
-        requested_professor = self.__professor_entry.get()
+        requested_sID, requested_values = self.__get_entered_data()
 
         if len(requested_sID) != 5:
-            self.__displayed_data.set("Error: Student ID must be 5 characters in length")
+            self.__displayed_data.set(ID_WRONG_LENGTH_ERROR)
             return
 
         # Connect to database
         conn = sqlite3.connect('student_database.db')
         cur = conn.cursor()
-
-        requested_values = (requested_sID, requested_last, requested_first, requested_year,
-                            requested_cname, requested_cID, requested_professor)
 
         # Test if every value is present
         if all(requested_values):
@@ -231,6 +226,9 @@ class StudentDatabaseGUI:
                 if results:
                     self.__displayed_data.set('Error: Student already exists with that ID')
                 else:
+                    requested_year = requested_values[3]
+                    requested_cID = requested_values[5]
+
                     if not requested_sID.isdigit():
                         self.__displayed_data.set('Error: Student ID must be an integer')
 
@@ -241,28 +239,19 @@ class StudentDatabaseGUI:
                         self.__displayed_data.set('Error: Course ID must be an integer')
 
         else:
-            for i in range(len(requested_values)-1, -1, -1):
+            for i in range(len(requested_values) - 1, -1, -1):
                 if not requested_values[i]:
                     self.__displayed_data.set(f"Error: no value entered for {FIELD_TITLES[i]}")
 
         conn.close()
 
     def __edit_data(self):
-        # Get users input in the GUI
-        requested_sID = self.__student_ID_entry.get()
-        requested_last = self.__last_entry.get()
-        requested_first = self.__first_entry.get()
-        requested_year = self.__year_entry.get()
-        requested_cname = self.__course_name_entry.get()
-        requested_cID = self.__course_ID_entry.get()
-        requested_professor = self.__professor_entry.get()
+
+        requested_sID, requested_values = self.__get_entered_data()
 
         # Connect to database
         conn = sqlite3.connect('student_database.db')
         cur = conn.cursor()
-
-        requested_values = (requested_sID, requested_last, requested_first, requested_year, requested_cname,
-                            requested_cID, requested_professor)
 
         cur.execute('''SELECT * From Students
                     WHERE student_id == ?''', (requested_sID,))
@@ -296,7 +285,8 @@ class StudentDatabaseGUI:
                 self.__displayed_data.set('Error: Check int and str values')
         # If table field does not match correct int type
         except sqlite3.IntegrityError:
-            self.__displayed_data.set('Error: Check int and str values')
+            requested_year = requested_values[3]
+            requested_cID = requested_values[5]
 
             if not requested_sID.isdigit():
                 self.__displayed_data.set('Error: Student ID must be an integer')
@@ -334,18 +324,17 @@ class StudentDatabaseGUI:
                     self.__displayed_data.set('The student was deleted.')
                     # Call update_treeview to update GUI
                     self.__update_treeview()
+                    self.__clear_box()
 
                 # If not, display "No student found with that ID"
                 else:
                     # If no student with provided ID, error
-                    self.__displayed_data.set(DISPLAYED_DATA_ERROR)
-
-                self.__clear_box()
+                    self.__displayed_data.set(ID_NOT_FOUND_ERROR)
             # If table field does not match correct int type
             except sqlite3.IntegrityError:
                 self.__displayed_data.set('Error: Check int and str values')
         else:
-            self.__displayed_data.set('Enter a value for Student ID')    
+            self.__displayed_data.set('Enter a value for Student ID')
 
         conn.close()
 
@@ -364,6 +353,21 @@ class StudentDatabaseGUI:
             self.__data_table.insert(parent='', index='end', values=student)
 
         conn.close()
+
+    # Get users input in the GUI
+    def __get_entered_data(self):
+        requested_sID = self.__student_ID_entry.get()
+        requested_last = self.__last_entry.get()
+        requested_first = self.__first_entry.get()
+        requested_year = self.__year_entry.get()
+        requested_cname = self.__course_name_entry.get()
+        requested_cID = self.__course_ID_entry.get()
+        requested_professor = self.__professor_entry.get()
+
+        requested_values = (requested_sID, requested_last, requested_first, requested_year, requested_cname,
+                            requested_cID, requested_professor)
+
+        return requested_sID, requested_values
 
     # Clear all entries boxes
     def __clear_box(self):
