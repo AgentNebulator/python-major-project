@@ -1,4 +1,4 @@
-# Python Major Project:
+## Python Major Project:
 ### Student Records Database
 
 This is a database for managing student records. Download both files and run main.py to use.
