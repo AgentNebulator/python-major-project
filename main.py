@@ -413,7 +413,7 @@ class StudentDatabaseGUI:
             self.__displayed_data.set(ERROR_ID_EMPTY)
             return
 
-        if not database_data is False and not database_data:
+        if database_data is not False and not database_data:
             self.__displayed_data.set(ERROR_ID_NOT_FOUND)
             return False
 
@@ -433,7 +433,7 @@ class StudentDatabaseGUI:
             return False
 
         if requested_cID and not requested_cID.isdigit():
-            self.__displayed_data.set()
+            self.__displayed_data.set(ERROR_COURSE_ID_NOT_INT)
             return False
 
         return True
