@@ -21,6 +21,7 @@ ERROR_ID_WRONG_LENGTH = "Error: Student ID must be 5 characters in length"
 ERROR_ID_NOT_INT = 'Error: Student ID must be an integer'
 
 ERROR_FIELD_EMPTY = "Error: No value entered for {0}"
+ERROR_NO_EDITS_MADE = "Error: All fields empty, no edits are being made"
 
 ERROR_SCHOOL_YEAR_NOT_INT = 'Error: School Year must be an integer'
 ERROR_COURSE_ID_NOT_INT = 'Error: Course ID must be an integer'
@@ -318,6 +319,11 @@ class StudentDatabaseGUI:
 
         # Confirm data is not invalid
         if not self.__check_data_valid(requested_sID, requested_values, results):
+            return
+
+        # Test if any fields are filled past the student ID
+        if not any(requested_values[1:]):
+            self.__displayed_data.set(ERROR_NO_EDITS_MADE)
             return
 
         try:
