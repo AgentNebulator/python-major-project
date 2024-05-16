@@ -65,9 +65,6 @@ class StudentDatabaseGUI:
         cur.execute('SELECT * FROM Students')
         data = cur.fetchall()  # data is the data in the table, excluding headers
 
-        # Store results as a tuple
-        self.__data = data
-
         # Close connection
         conn.close()
 
