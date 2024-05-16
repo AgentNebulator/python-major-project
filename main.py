@@ -32,6 +32,7 @@ FIELD_TITLES = ["Student ID", "Last Name", "First Name", "School Year", "Course 
 
 TABLE_COLUMN_WIDTH = 100
 
+
 # Main function
 def main():
     # Connect to the database
