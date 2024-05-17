@@ -1,5 +1,5 @@
 # Week 15: Final Project
-# Code by team of Mathias Laven, Ethan Smith, Kathleen Brozynski (05/15/2024)
+# Code by team of Mathias Laven, Ethan Smith, Kathleen Brozynski (05/16/2024)
 
 import sqlite3
 import student_data
@@ -474,12 +474,12 @@ class StudentDatabaseGUI:
             self.__displayed_data.set(ERROR_ID_NOT_INT)
             return False
 
-        # Tests if the last name is numeric or not specified
+        # Tests if the last name is text or not specified
         if requested_last and requested_last.isdigit():
             self.__displayed_data.set(ERROR_LAST_NAME_NOT_STR)
             return False
 
-        # Tests if the first name is numeric or not specified
+        # Tests if the first name is text or not specified
         if requested_first and requested_first.isdigit():
             self.__displayed_data.set(ERROR_FIRST_NAME_NOT_STR)
             return False
@@ -489,7 +489,7 @@ class StudentDatabaseGUI:
             self.__displayed_data.set(ERROR_SCHOOL_YEAR_NOT_INT)
             return False
 
-        # Tests if the course name is numeric or not specified
+        # Tests if the course name is text or not specified
         if requested_cname and requested_cname.isdigit():
             self.__displayed_data.set(ERROR_COURSE_NAME_NOT_STR)
             return False
@@ -499,7 +499,7 @@ class StudentDatabaseGUI:
             self.__displayed_data.set(ERROR_COURSE_ID_NOT_INT)
             return False
 
-        # Tests if the professor is numeric or not specified
+        # Tests if the professor is text or not specified
         if requested_professor and requested_professor.isdigit():
             self.__displayed_data.set(ERROR_PROF_NAME_NOT_STR)
             return False
